@@ -10,11 +10,13 @@ Dependencies:
 """
 
 import os
-import openai from openai
+from openai import OpenAI
 from typing import Any, Dict, List
 
 # Load environment variables
-openai.api_key = os.getenv("OPENAI_API_KEY")
+client = OpenAI(
+    api_key=os.getenv("OPENAI_API_KEY")
+)
 
 class OpenAIAgent:
     def __init__(self):
@@ -52,13 +54,13 @@ class OpenAIAgent:
         Returns:
             The action to be performed (e.g., "read", "create", "update", "delete").
         """
-        response = openai.ChatCompletion.create(
+        response = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
                 {"role": "user", "content": query}
             ]
         )
-        return response['choices'][0]['message']['content']
+        return response.choices[0].message.content
 
     def read_table_rows(self, query: str) -> Dict[str, Any]:
         # Placeholder for actual implementation

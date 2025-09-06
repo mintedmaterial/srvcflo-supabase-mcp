@@ -221,10 +221,33 @@ The assistant will have access to the tools documented in the "Available Tools" 
 
 ## Environment Variables
 
+For local development, create a `.env` file in the project root with the following variables:
+
 | Variable | Description |
 |----------|-------------|
-| `SUPABASE_URL` | URL of your Supabase project |
+| `SUPABASE_URL` | URL of your Supabase project (e.g., `https://your-project.supabase.co`) |
 | `SUPABASE_SERVICE_KEY` | Service role key for Supabase authentication |
+| `OPENAI_API_KEY` | OpenAI API key for AI agent functionality (if using the OpenAI agent) |
+
+### Setting up Environment Variables
+
+1. Copy the example environment file:
+   ```bash
+   cp .env.example .env
+   ```
+
+2. Edit the `.env` file and replace the placeholder values with your actual credentials:
+   ```env
+   SUPABASE_URL=https://your-project.supabase.co
+   SUPABASE_SERVICE_KEY=your-actual-service-role-key
+   OPENAI_API_KEY=your-openai-api-key
+   ```
+
+3. Get your Supabase credentials from your [Supabase dashboard](https://supabase.com/dashboard):
+   - **SUPABASE_URL**: Found in Settings > API > Project URL
+   - **SUPABASE_SERVICE_KEY**: Found in Settings > API > Project API keys > service_role key
+
+**Note**: Never commit your `.env` file to version control. It's already included in `.gitignore`.
 
 ## License
 

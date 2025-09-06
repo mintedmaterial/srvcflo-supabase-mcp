@@ -1,6 +1,6 @@
-# Supabase MCP Server
+# Supabase MCP Server with OpenAI Integration
 
-A Model Context Protocol (MCP) server that provides tools for interacting with a Supabase database. This server enables AI assistants to perform database operations through a standardized interface.
+A Model Context Protocol (MCP) server that provides tools for interacting with a Supabase database. This server enables AI assistants to perform database operations through a standardized interface, with optional OpenAI-powered natural language query processing.
 
 NOTE: This Supabase MCP server was created as a demonstration of my AI IDE coding workflow. It is still a work in progress which I will expand on in future videos on [my channel](https://youtube.com/@ColeMedin).
 
@@ -10,11 +10,15 @@ NOTE: This Supabase MCP server was created as a demonstration of my AI IDE codin
 - **Create Table Records**: Insert new records into Supabase tables
 - **Update Table Records**: Modify existing records in Supabase tables based on filters
 - **Delete Table Records**: Remove records from Supabase tables based on filters
+- **🆕 Natural Language Query Processing**: Process database queries using natural language with OpenAI integration
+- **🆕 Intelligent Query Interpretation**: Automatically determines the appropriate database operation based on user intent
+- **🆕 Fallback Functionality**: Works with or without OpenAI API key using keyword-based fallbacks
 
 ## Prerequisites
 
 - Docker or Docker Desktop
 - Supabase account and project
+- OpenAI API key (optional, for natural language query processing)
 
 ## Installation
 
@@ -22,6 +26,18 @@ NOTE: This Supabase MCP server was created as a demonstration of my AI IDE codin
    ```bash
    git clone https://github.com/coleam00/supabase-mcp.git
    cd supabase-mcp
+   ```
+
+2. Set up environment variables by copying `.env.example` to `.env`:
+   ```bash
+   cp .env.example .env
+   ```
+
+3. Edit `.env` file with your credentials:
+   ```env
+   SUPABASE_URL=your-supabase-project-url
+   SUPABASE_SERVICE_KEY=your-supabase-service-role-key
+   OPENAI_API_KEY=your-openai-api-key  # Optional
    ```
 
 ### Docker Setup
@@ -32,6 +48,24 @@ NOTE: This Supabase MCP server was created as a demonstration of my AI IDE codin
    ```
 
 ## Usage
+
+### Testing the Integration
+
+1. **Test the agent functionality**:
+   ```bash
+   python test_agent.py
+   ```
+
+2. **Run the demonstration**:
+   ```bash
+   python demo.py
+   ```
+
+3. **Test with OpenAI API**:
+   ```bash
+   export OPENAI_API_KEY='your-api-key'
+   python test_agent.py
+   ```
 
 ### Running as an MCP Server with Docker
 
@@ -46,23 +80,41 @@ Be sure to build the container with the installation steps first!
   "mcpServers": {
     "supabase": {
       "command": "docker",
-      "args": ["run", "--rm", "-i", "-e", "SUPABASE_URL", "-e", "SUPABASE_SERVICE_KEY", "mcp/supabase"],
+      "args": ["run", "--rm", "-i", "-e", "SUPABASE_URL", "-e", "SUPABASE_SERVICE_KEY", "-e", "OPENAI_API_KEY", "mcp/supabase"],
       "env": {
         "SUPABASE_URL": "YOUR-SUPABASE-URL",
-        "SUPABASE_SERVICE_KEY": "YOUR-SUPABASE-SERVICE-ROLE-KEY"
+        "SUPABASE_SERVICE_KEY": "YOUR-SUPABASE-SERVICE-ROLE-KEY",
+        "OPENAI_API_KEY": "YOUR-OPENAI-API-KEY"
       }
     }
   }
 }
 ```
 
-2. Replace `YOUR-SUPABASE-URL` and `YOUR-SUPABASE-SERVICE-ROLE-KEY` with your actual Supabase credentials.
+2. Replace the environment variables with your actual credentials.
 
-3. The AI assistant can now access the Supabase database through the MCP server using the provided tools.
+3. The AI assistant can now access the Supabase database through the MCP server using both traditional tools and natural language queries.
 
 For more information on the Model Context Protocol, visit [modelcontextprotocol.io](https://modelcontextprotocol.io).
 
 ### Available Tools
+
+#### Natural Language Query Processing (New!)
+
+```python
+process_natural_language_query(query: str)
+```
+
+Process database queries using natural language. The system automatically interprets your intent and executes the appropriate database operation.
+
+Examples:
+```python
+# These natural language queries are automatically interpreted:
+process_natural_language_query("Get all active users created this month")
+process_natural_language_query("Create a new user with name John and email john@example.com")
+process_natural_language_query("Update all pending users to active status")
+process_natural_language_query("Delete users who haven't logged in for 6 months")
+```
 
 #### Read Table Rows
 

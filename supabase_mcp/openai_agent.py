@@ -14,12 +14,14 @@ from openai import OpenAI
 from typing import Any, Dict, List
 
 # Load environment variables
-client = OpenAI(
-    api_key=os.getenv("OPENAI_API_KEY")
-)
+from dotenv import load_dotenv
+load_dotenv()
 
 class OpenAIAgent:
     def __init__(self):
+        self.client = OpenAI(
+            api_key=os.getenv("OPENAI_API_KEY")
+        )
         self.tools = {
             "read": self.read_table_rows,
             "create": self.create_table_records,
@@ -54,7 +56,7 @@ class OpenAIAgent:
         Returns:
             The action to be performed (e.g., "read", "create", "update", "delete").
         """
-        response = client.chat.completions.create(
+        response = self.client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
                 {"role": "user", "content": query}

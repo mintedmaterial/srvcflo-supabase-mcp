@@ -22,6 +22,13 @@ from dotenv import load_dotenv
 from supabase import create_client, Client
 from mcp.server.fastmcp import FastMCP, Context
 
+# Optional OpenAI integration
+try:
+    from .integration import create_agent_with_mcp_context
+    OPENAI_INTEGRATION_AVAILABLE = True
+except ImportError:
+    OPENAI_INTEGRATION_AVAILABLE = False
+
 # Load environment variables
 load_dotenv()
 
@@ -30,6 +37,7 @@ load_dotenv()
 class SupabaseContext:
     """Context for the Supabase MCP server."""
     client: Client
+    agent: Optional[Any] = None  # OpenAI agent if available
 
 
 @asynccontextmanager
@@ -55,8 +63,23 @@ async def supabase_lifespan(server: FastMCP) -> AsyncIterator[SupabaseContext]:
     # Initialize Supabase client
     supabase_client = create_client(supabase_url, supabase_key)
     
+    # Initialize OpenAI agent if available and API key is set
+    agent = None
+    if OPENAI_INTEGRATION_AVAILABLE and os.getenv("OPENAI_API_KEY"):
+        try:
+            # Create a temporary context to pass to the agent
+            temp_context = type('TempContext', (), {
+                'request_context': type('RequestContext', (), {
+                    'lifespan_context': type('LifespanContext', (), {'client': supabase_client})()
+                })()
+            })()
+            agent = create_agent_with_mcp_context(temp_context)
+            print("OpenAI Agent integration enabled")
+        except Exception as e:
+            print(f"OpenAI Agent integration failed: {e}")
+    
     try:
-        yield SupabaseContext(client=supabase_client)
+        yield SupabaseContext(client=supabase_client, agent=agent)
     finally:
         # No explicit cleanup needed for Supabase client
         pass
@@ -276,6 +299,51 @@ def delete_table_records(
         "count": len(response.data) if response.data else 0,
         "status": "success" if response.data else "error"
     }
+
+
+@mcp.tool()
+def process_natural_language_query(
+    ctx: Context,
+    query: str
+) -> Dict[str, Any]:
+    """
+    Process a natural language query using the OpenAI agent (if available).
+    
+    This tool allows you to interact with the database using natural language.
+    The OpenAI agent will interpret your query and execute the appropriate database operation.
+    
+    Args:
+        ctx: The MCP context
+        query: Natural language query (e.g., "Get all active users", "Create a new user named John")
+        
+    Returns:
+        Dictionary containing the result of the interpreted and executed query
+        
+    Example:
+        process_natural_language_query(query="Show me all users created in the last week")
+        process_natural_language_query(query="Create a new user with name Alice and email alice@example.com")
+    """
+    supabase_context = ctx.request_context.lifespan_context
+    
+    if not supabase_context.agent:
+        return {
+            "error": "OpenAI agent not available. Please set OPENAI_API_KEY environment variable.",
+            "fallback": "Use the specific database tools (read_table_rows, create_table_records, etc.) instead."
+        }
+    
+    try:
+        result = supabase_context.agent.process_user_query(query)
+        return {
+            "query": query,
+            "result": result,
+            "status": "success"
+        }
+    except Exception as e:
+        return {
+            "query": query,
+            "error": f"Error processing natural language query: {str(e)}",
+            "status": "error"
+        }
 
 
 if __name__ == "__main__":

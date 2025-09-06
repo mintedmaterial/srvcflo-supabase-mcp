@@ -4,8 +4,8 @@
         "command": "docker",
         "args": ["run", "--rm", "-i", "-e", "SUPABASE_URL", "-e", "SUPABASE_SERVICE_KEY", "mcp/supabase"],
         "env": {
-          "SUPABASE_URL": "https://rgfpzfyzfrszgfsvvlsd.supabase.co",
-          "SUPABASE_SERVICE_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJnZnB6Znl6ZnJzemdmc3Z2bHNkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTczOTU5ODk0NCwiZXhwIjoyMDU1MTc0OTQ0fQ.9iNT_bLefFqUQ4l29Bav515gUTJYzq6AgaxCq-2tqSk"
+          "SUPABASE_URL": "",
+          "SUPABASE_SERVICE_KEY": ""
         }
     }
   }
